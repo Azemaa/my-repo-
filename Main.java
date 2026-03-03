@@ -4,91 +4,63 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // create courses
-        Course oop = new Course("oop", "Ms Azhar", 6);
-        Course math = new Course("calculus", "Mr Chebsi", 5);
-        Course history = new Course("computer graphics", "Mr Andrei", 3);
+        ArrayList<PlanItem> items = new ArrayList<>();
 
-        ArrayList<Course> courses = new ArrayList<>();
-        courses.add(oop);
-        courses.add(math);
-        courses.add(history);
+        items.add(new Assignment("lab3", "oop", 1, 3));
+        items.add(new Assignment("homework6", "math", 4, 5));
+        items.add(new ExamPreparation("midterm review", "physics", 3, 10));
+        items.add(new ClubEvent("debate meeting", 0, 2));
+        items.add(new ExamPreparation("final prep", "history", 8, 12));
 
-        // create assignments
-        ArrayList<AssignmentTask> tasks = new ArrayList<>();
+        System.out.println("all plan items:");
 
-        tasks.add(new AssignmentTask("lab2", oop, 3, 1));
-        tasks.add(new AssignmentTask("project", oop, 6, 4));
-        tasks.add(new AssignmentTask("homework5", math, 4, 2));
-        tasks.add(new AssignmentTask("essay", history, 2, 0));
-        tasks.add(new AssignmentTask("presentation", history, 5, 5));
+        for (PlanItem item : items) {
 
-        // create study sessions
-        ArrayList<StudySession> sessions = new ArrayList<>();
+            System.out.println(item.getSummary());
 
-        sessions.add(new StudySession(oop, 80));
-        sessions.add(new StudySession(math, 120));
-        sessions.add(new StudySession(oop, 60));
-        sessions.add(new StudySession(history, 40));
-
-        System.out.println("courses:");
-        for (Course c : courses) {
-            System.out.println(c.getName() + " | " + c.getInstructor() + " | credits: " + c.getCredits());
-        }
-
-        System.out.println("\nassignments:");
-
-        int totalHours = 0;
-
-        for (AssignmentTask t : tasks) {
-
-            System.out.print(t.getTitle() + " (" + t.getCourse().getName() + ") ");
-            System.out.print("est: " + t.getEstimatedHours() + "h ");
-            System.out.print("due in: " + t.getDaysUntilDue() + " days ");
-
-            if (t.isUrgent()) {
-                System.out.print("urgent");
-            }
-
-            System.out.println();
-
-            if (!t.isCompleted()) {
-                totalHours += t.getEstimatedHours();
+            if (item.isUrgent()) {
+                System.out.println("  urgent");
             }
         }
 
-        System.out.println("\ntotal remaining hours: " + totalHours);
+        int totalRemaining = 0;
 
-        System.out.println("\nstudy time per course:");
+        for (PlanItem item : items) {
+            if (!item.isCompleted()) {
+                totalRemaining += item.getEstimatedHours();
+            }
+        }
 
-        for (Course c : courses) {
+        System.out.println("\ntotal remaining hours: " + totalRemaining);
 
-            double sum = 0;
+        PlanItem first = items.get(0);
+        first.markCompleted();
 
-            for (StudySession s : sessions) {
-                if (s.getCourse().equals(c)) {
-                    sum += s.hours();
+        System.out.println("\nafter completing: " + first.getTitle());
+
+        totalRemaining = 0;
+
+        for (PlanItem item : items) {
+            if (!item.isCompleted()) {
+                totalRemaining += item.getEstimatedHours();
+            }
+        }
+
+        System.out.println("new remaining hours: " + totalRemaining);
+
+        PlanItem mostUrgent = null;
+
+        for (PlanItem item : items) {
+            if (!item.isCompleted()) {
+                if (mostUrgent == null ||
+                        item.getDaysUntil() < mostUrgent.getDaysUntil()) {
+                    mostUrgent = item;
                 }
             }
-
-            System.out.println(c.getName() + ": " + sum + " hours");
         }
 
-        // mark first task completed
-        AssignmentTask done = tasks.get(0);
-        done.markCompleted();
-
-        System.out.println("\ncompleted task:");
-        System.out.println(done.getTitle() + " is now completed");
-
-        // recalc hours
-        totalHours = 0;
-        for (AssignmentTask t : tasks) {
-            if (!t.isCompleted()) {
-                totalHours += t.getEstimatedHours();
-            }
+        if (mostUrgent != null) {
+            System.out.println("most urgent item: " + mostUrgent.getTitle());
         }
-
-        System.out.println("new remaining hours: " + totalHours);
     }
 }
